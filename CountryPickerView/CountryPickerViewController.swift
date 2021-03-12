@@ -8,9 +8,204 @@
 
 import UIKit
 
+class CustomSearchBar: UISearchBar {
+
+    private var searchBgColor: UIColor = UIColor.white
+    var searchTextFieldBackgroundColor: UIColor = UIColor.white
+    var preferredFont: UIFont = UIFont.systemFont(ofSize: 13)
+    var preferredTextColor: UIColor = UIColor(red: 0, green: 199/255.0, blue: 242/255.0, alpha: 1.0)
+    var otherBtnColor: UIColor = UIColor(red: 0, green: 199/255.0, blue: 242/255.0, alpha: 1.0)
+    var placeholderTextColor: UIColor = UIColor.darkGray
+    var drawBottomLine : Bool = false
+    var isFromLocation : Bool = false
+
+
+    init(frame: CGRect, font: UIFont, textColor: UIColor) {
+        super.init(frame: frame)
+
+        self.frame = frame
+        preferredFont = font
+        preferredTextColor = textColor
+
+        searchBarStyle = UISearchBar.Style.prominent
+        isTranslucent = false
+    }
+
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        //Remove border at bottom of search bar
+        layer.masksToBounds = true
+    }
+
+    public var searchbarBackgroundColor : UIColor {
+        set (newValue){
+            searchBgColor = newValue
+            barTintColor = searchBgColor
+        }
+        get {
+            return searchBgColor
+        }
+    }
+
+
+    private func searchField() -> UITextField? {
+        return self.subviewOfClass(className: "UITextField") as? UITextField
+    }
+
+    private func backgroundView() -> UIView? {
+        return self.subviewOfClass(className: "_UISearchBarSearchFieldBackgroundView")
+    }
+
+    override func draw(_ rect: CGRect) {
+        // Drawing code
+
+        guard let searchField = searchField() else {
+            super.draw(rect)
+            return
+        }
+        self.setPositionAdjustment(UIOffset(horizontal: 8.0, vertical: 0.0), for: UISearchBar.Icon.search)
+        searchField.font = preferredFont
+        searchField.textColor = preferredTextColor
+        searchField.backgroundColor = searchTextFieldBackgroundColor
+        let iVar = class_getInstanceVariable(UITextField.self, "_placeholderLabel")!
+        let placeholderLabel = object_getIvar(searchField, iVar) as! UILabel
+        placeholderLabel.textColor = placeholderTextColor
+
+        if (!isFromLocation) {
+            searchField.layer.borderColor = UIColor(red: 13/255.0, green: 209/255.0, blue: 255/255.0, alpha: 1).cgColor
+        searchField.layer.borderWidth = 1
+        searchField.layer.masksToBounds = true
+        searchField.layer.cornerRadius = min(searchField.bounds.size.width, searchField.bounds.size.height)/2
+        }
+
+        //Magnifying glass
+        if let glassIconView = searchField.leftView as? UIImageView {
+            glassIconView.image = UIImage(named: "CountryPickerView.bundle/Images/ic_search_blue",
+                                          in: Bundle(for: CountryPickerView.self), compatibleWith: nil)
+            //Magnifying glass
+            glassIconView.image = glassIconView.image?.withRenderingMode(UIImage.RenderingMode.alwaysTemplate)
+            glassIconView.tintColor = otherBtnColor
+        }
+
+        //Magnifying glass
+        if  let clearIconView = searchField.value(forKey: "clearButton") as? UIButton {
+            clearIconView.setImage(UIImage(named: "CountryPickerView.bundle/Images/ic_clear",
+                                           in: Bundle(for: CountryPickerView.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), for: .normal)
+            clearIconView.tintColor = otherBtnColor
+        }
+
+        for view in self.subviews {
+            for subview in view.subviews {
+                if subview.isKind(of: UIButton.self)  {
+                    let cancelButton = subview as! UIButton
+                    //cancelButton.titleLabel?.font = self.preferredFont
+                    cancelButton.setTitle("Cancel", for: .normal)
+                    if let cancelText  = cancelButton.titleLabel?.text {
+                        var frame = cancelButton.frame
+                        let attributes = cancelButton.titleLabel?.font != nil ? [NSAttributedString.Key.font: cancelButton.titleLabel!.font!] : [:]
+                        let size = (cancelText as NSString).size(withAttributes: attributes)
+                        frame.size.width += size.width
+                        frame.origin.x -= size.width/2
+                        cancelButton.frame = frame
+                        var frameSearchField = searchField.frame
+                        frameSearchField.size.width -= 10
+                        searchField.frame = frameSearchField
+                    }
+
+                    break
+                }
+            }
+        }
+
+        if drawBottomLine == true {
+            let startPoint = CGPoint.init(x : 0.0, y : frame.size.height)
+            let endPoint = CGPoint.init(x: frame.size.width, y: frame.size.height)
+            let path = UIBezierPath()
+            path.move(to: startPoint)
+            path.addLine(to: endPoint)
+
+            let shapeLayer = CAShapeLayer()
+            shapeLayer.path = path.cgPath
+            shapeLayer.strokeColor = UIColor(red: 215.0/255.0, green: 215.0/255.0, blue: 215.0/255.0, alpha: 1.0).cgColor
+            shapeLayer.lineWidth = 1.0
+            layer.addSublayer(shapeLayer)
+        }
+
+        super.draw(rect)
+    }
+
+}
+
+
+extension UIView {
+
+    /**
+     Method on UIView that will search recursivelly in all the receiver subviews to find a subview belonging to a specific class.
+
+     - parameter className: A string representing the class name
+
+     - returns: The first subview of the specific class that has been found. If no subviews belong to the class, nil will be return.
+     */
+    func subviewOfClass (className:String) -> UIView? {
+
+        guard let aClass = NSClassFromString(className) else {
+            return nil
+        }
+
+        for subview in self.subviews {
+
+            if subview.isKind(of : aClass) {
+                return subview
+
+            } else if let subviewOfClass = subview.subviewOfClass(className: className) {
+                return subviewOfClass
+            }
+        }
+        return nil
+    }
+
+    /**
+     Method on UIView that will search recursivelly in all the receiver subviews to find all subview belonging to a specific class.
+
+     - parameter className: A string representing the class name
+
+     - returns: An array containing all the subviews of the specific class that have been found. If no subviews belong to the class, nil will be return.
+     */
+    func subviewsOfClass (className:String) -> Array<UIView>? {
+
+        guard let aClass = NSClassFromString(className) else {
+            return nil
+        }
+        var arrayOfViews : Array<UIView> = []
+
+        for subview in self.subviews {
+
+            if subview.isKind(of : aClass) {
+                arrayOfViews.append(subview)
+
+            } else if let subviewsOfClass = subview.subviewsOfClass(className: className) {
+                arrayOfViews.append(contentsOf: subviewsOfClass)
+            }
+        }
+        if arrayOfViews.count > 0 {return arrayOfViews}
+        else {return nil}
+    }
+}
+
+public class DSearchController: UISearchController {
+
+    private var customSearchBar = CustomSearchBar(frame: CGRect.zero, font: UIFont.systemFont(ofSize: 18) , textColor: .black)
+    override public var searchBar: UISearchBar {
+        get {
+            return customSearchBar
+        }
+    }
+}
+
 public class CountryPickerViewController: UITableViewController {
 
-    public var searchController: UISearchController?
+    public var searchController: DSearchController?
     fileprivate var searchResults = [Country]()
     fileprivate var isSearchMode = false
     fileprivate var sectionsTitles = [String]()
@@ -89,7 +284,8 @@ extension CountryPickerViewController {
         if searchBarPosition == .hidden  {
             return
         }
-        searchController = UISearchController(searchResultsController:  nil)
+        searchController = DSearchController(searchResultsController:  nil)
+        searchController?.searchBar.placeholder = "Search"
         searchController?.searchResultsUpdater = self
         searchController?.dimsBackgroundDuringPresentation = false
         searchController?.hidesNavigationBarDuringPresentation = searchBarPosition == .tableViewHeader
