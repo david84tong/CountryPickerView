@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CountryListViewController: UIViewController {
+public class CountryListViewController: UIViewController {
 
     @IBOutlet weak var tableView : UITableView!
     @IBOutlet weak var searchBarField : UITextField!
@@ -48,7 +48,7 @@ class CountryListViewController: UIViewController {
     }
     
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         prepareTableItems()
@@ -139,13 +139,13 @@ class CountryListViewController: UIViewController {
 
 extension CountryListViewController : UITextFieldDelegate {
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         searchByKeyWord(textField.text ?? "")
         return true
     }
 
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if let previousText:NSString = textField.text as NSString? {
             let updatedText = previousText.replacingCharacters(in: range, with: string)
             searchByKeyWord(updatedText)
@@ -157,15 +157,15 @@ extension CountryListViewController : UITextFieldDelegate {
 
 extension CountryListViewController: UITableViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         return isSearchMode ? 1 : sectionsTitles.count
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return isSearchMode ? searchResults.count : countries[sectionsTitles[section]]!.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let identifier = String(describing: CountryTableViewCell.self)
 
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? CountryTableViewCell
@@ -200,11 +200,11 @@ extension CountryListViewController: UITableViewDataSource {
         return cell
     }
 
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return isSearchMode ? nil : sectionsTitles[section]
     }
 
-    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+    public func sectionIndexTitles(for tableView: UITableView) -> [String]? {
         if isSearchMode {
             return nil
         } else {
@@ -215,7 +215,7 @@ extension CountryListViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+    public func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         return sectionsTitles.firstIndex(of: title)!
     }
 }
@@ -223,7 +223,7 @@ extension CountryListViewController: UITableViewDataSource {
 //MARK:- UITableViewDelegate
 extension CountryListViewController: UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    public func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         if let header = view as? UITableViewHeaderFooterView {
             header.textLabel?.font = dataSource.sectionTitleLabelFont
             if let color = dataSource.sectionTitleLabelColor {
@@ -232,7 +232,7 @@ extension CountryListViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let country = isSearchMode ? searchResults[indexPath.row]
             : countries[sectionsTitles[indexPath.section]]![indexPath.row]
