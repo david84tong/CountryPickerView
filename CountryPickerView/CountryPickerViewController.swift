@@ -227,7 +227,7 @@ public class CountryPickerViewController: UITableViewController {
     
     override public func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.view.autoresizesSubviews = true
         prepareTableItems()
         prepareNavItem()
         prepareSearchBar()
@@ -292,7 +292,7 @@ extension CountryPickerViewController {
         searchController?.definesPresentationContext = true
         searchController?.searchBar.delegate = self
         searchController?.delegate = self
-
+        searchController?.searchBar.sizeToFit()
         switch searchBarPosition {
         case .tableViewHeader: tableView.tableHeaderView = searchController?.searchBar
         case .navigationBar: navigationItem.titleView = searchController?.searchBar
@@ -523,7 +523,7 @@ class CountryPickerViewDataSourceInternal: CountryPickerViewDataSource {
     
     var closeButtonNavigationItem: UIBarButtonItem {
         guard let button = view.dataSource?.closeButtonNavigationItem(in: view) else {
-            return UIBarButtonItem(title: "Close", style: .done, target: nil, action: nil)
+            return UIBarButtonItem(title: "Done", style: .done, target: nil, action: nil)
         }
         return button
     }

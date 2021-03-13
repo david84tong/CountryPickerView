@@ -153,20 +153,26 @@ public class CountryPickerView: NibView {
     }
     
     public func showCountriesList(from viewController: UIViewController) {
-        let countryVc = CountryPickerViewController(style: .grouped)
+        let countryVc = CountryListViewController(nibName: "CountryListViewController", bundle: Bundle(for: CountryPickerView.self))
         countryVc.countryPickerView = self
-        if let viewController = viewController as? UINavigationController {
-            delegate?.countryPickerView(self, willShow: countryVc)
-            viewController.pushViewController(countryVc, animated: true) {
-                self.delegate?.countryPickerView(self, didShow: countryVc)
-            }
-        } else {
-            let navigationVC = UINavigationController(rootViewController: countryVc)
-            delegate?.countryPickerView(self, willShow: countryVc)
-            viewController.present(navigationVC, animated: true) {
-                self.delegate?.countryPickerView(self, didShow: countryVc)
-            }
+        let navigationVC = UINavigationController(rootViewController: countryVc)
+        viewController.present(navigationVC, animated: true) {
+
         }
+//        let countryVc = CountryPickerViewController(style: .grouped)
+//        countryVc.countryPickerView = self
+//        if let viewController = viewController as? UINavigationController {
+//            delegate?.countryPickerView(self, willShow: countryVc)
+//            viewController.pushViewController(countryVc, animated: true) {
+//                self.delegate?.countryPickerView(self, didShow: countryVc)
+//            }
+//        } else {
+//            let navigationVC = UINavigationController(rootViewController: countryVc)
+//            delegate?.countryPickerView(self, willShow: countryVc)
+//            viewController.present(navigationVC, animated: true) {
+//                self.delegate?.countryPickerView(self, didShow: countryVc)
+//            }
+//        }
     }
     
     public let countries: [Country] = {
