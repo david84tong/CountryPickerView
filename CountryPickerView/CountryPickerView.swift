@@ -153,7 +153,10 @@ public class CountryPickerView: NibView {
     }
     
     public func showCountriesList(from viewController: UIViewController) {
-        let countryVc = CountryListViewController(nibName: "CountryListViewController", bundle: Bundle(for: CountryPickerView.self))
+        let frameworkBundleID  = "org.cocoapods.CountryPickerView";
+        let bundle = Bundle(identifier: frameworkBundleID)
+
+        let countryVc = CountryListViewController(nibName: "CountryListViewController", bundle: bundle)
         countryVc.countryPickerView = self
         if let viewController = viewController as? UINavigationController {
             delegate?.countryPickerView(self, willShow: countryVc)
